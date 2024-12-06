@@ -16,8 +16,6 @@ public class Employee : EntityBase<int>
     
     public DateTime BirthDate { get; set; }
     
-    public User User { get; set; }
-    
     public List<Education> Educations { get; set; } 
     
     public List<WorkExperience> WorkExperience { get; set; } 
