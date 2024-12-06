@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using backvgtu.DbContexts;
 using backvgtu.Models.Users;
+using backvgtu.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -11,12 +13,13 @@ namespace backvgtu.Controllers;
 //[ApiController]
 public class AuthController : ControllerBase
 {
-    private List<User> _users = new()
+    public ApplicationContext _context { get; set; }
+
+
+    public AuthController()
     {
-        new User(){Login = "admin@gmail.com", Password = "123456", Role = "admin"},
-        new User(){Login = "user@gmail.com", Password = "123456", Role = "user"}
-    };
-    
+        _context = new ApplicationContext();
+    }
     [HttpPost("/login")]
     public IActionResult Login(string username, string password)
     {
@@ -47,9 +50,33 @@ public class AuthController : ControllerBase
         return Ok(JsonConvert.SerializeObject(response));
     }
 
+    [HttpPost("/register")]
+    public IActionResult Register(string username, string password)
+    {
+        _context.Users.Add(new User()
+        {
+            Login = username,
+            Password = AuthUtils.HashPassword(password),
+            Role = "user"
+        });
+
+        var id = _context.SaveChanges();
+        return Ok(id);
+    }
+    
     private ClaimsIdentity GetIdentity(string username, string password)
     {
-        var user = _users.FirstOrDefault(u => u.Login == username && u.Password == password);
+        var user = _context.Users.FirstOrDefault(u => u.Login == username);
+        if (user == null)
+        {
+            return null;
+        }
+
+        if (!AuthUtils.VerifyPassword(password, user.Password))
+        {
+            return null;
+        }
+
         if (user != null)
         {
             var claims = new List<Claim>()
@@ -63,7 +90,6 @@ public class AuthController : ControllerBase
 
             return claimsIdentity;
         }
-
         return null;
     }
 }
