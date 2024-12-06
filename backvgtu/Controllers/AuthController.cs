@@ -4,14 +4,14 @@ using backvgtu.DbContexts;
 using backvgtu.Models.Users;
 using backvgtu.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace backvgtu.Controllers;
 
-//[Route("api/[controller]")]
-//[ApiController]
+
+[ApiController]
+[Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     public ApplicationContext _context { get; set; }
@@ -68,22 +68,13 @@ public class AuthController : ControllerBase
     private ClaimsIdentity GetIdentity(string username, string password)
     {
         var user = _context.Users.FirstOrDefault(u => u.Login == username);
-        if (user == null)
+        if (user == null || !AuthUtils.VerifyPassword(password, user.Password))
         {
             return null;
         }
-
-        if (!AuthUtils.VerifyPassword(password, user.Password))
-        {
-            return null;
-        }
-
+        
         if (user != null)
         {
-            var employee = _context.Employees
-                .Include(e => e.Educations)
-                .Include(e => e.WorkExperience)
-                .FirstOrDefault(e => e.User.Id == user.Id);
             
             var claims = new List<Claim>()
             {
