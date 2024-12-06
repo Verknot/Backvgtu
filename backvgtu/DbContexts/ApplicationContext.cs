@@ -1,3 +1,5 @@
+using backvgtu.Models.Departments;
+using backvgtu.Models.Employees;
 using backvgtu.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +8,14 @@ namespace backvgtu.DbContexts;
 public class ApplicationContext : DbContext
 {
     public DbSet<User> Users { get; set; }
+    
+    public DbSet<Department> Departments { get; set; }
+    
+    public DbSet<Employee> Employees { get; set; }
+    
+    public DbSet<Education> Educations { get; set; }
+    
+    public DbSet<WorkExperience> WorkExperience { get; set; }
 
     public ApplicationContext()
     {

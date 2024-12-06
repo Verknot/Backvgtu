@@ -4,6 +4,7 @@ using backvgtu.DbContexts;
 using backvgtu.Models.Users;
 using backvgtu.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
@@ -79,6 +80,11 @@ public class AuthController : ControllerBase
 
         if (user != null)
         {
+            var employee = _context.Employees
+                .Include(e => e.Educations)
+                .Include(e => e.WorkExperience)
+                .FirstOrDefault(e => e.User.Id == user.Id);
+            
             var claims = new List<Claim>()
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
