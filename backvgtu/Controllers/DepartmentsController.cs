@@ -1,6 +1,7 @@
 using backvgtu.DbContexts;
 using backvgtu.Models.Departments;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backvgtu.Controllers;
 
@@ -19,7 +20,10 @@ public class DepartmentsController : ControllerBase
     [HttpGet]
     public IEnumerable<Department> GetDepartments()
     {
-        return _context.Departments.ToList();
+        return _context.Departments
+            .Include(d => d.Employees).ThenInclude(e => e.Educations)
+            .Include(d => d.Employees).ThenInclude(e => e.WorkExperience)
+            .ToList();
     }
     
     [HttpPut("department")]

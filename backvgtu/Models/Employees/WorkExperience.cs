@@ -6,5 +6,5 @@ public class WorkExperience : EntityBase<int>
 
     public string? Description { get; set; } = null;
     
-    public Employee Employee { get; set; }
+    //public Employee Employee { get; set; }
 }
