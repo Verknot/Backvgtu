@@ -1,5 +1,6 @@
 using backvgtu.DbContexts;
 using backvgtu.Models.Departments;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ public class DepartmentsController : ControllerBase
     }
     
     [HttpGet]
+    [Authorize(Roles = "admin, manager")]
     public IEnumerable<Department> GetDepartments()
     {
         return _context.Departments
@@ -26,6 +28,7 @@ public class DepartmentsController : ControllerBase
             .ToList();
     }
     
+    [Authorize(Roles = "admin")]
     [HttpPut("department")]
     public IActionResult UpdateDepartment(int id, string name, string? description)
     {
@@ -41,6 +44,7 @@ public class DepartmentsController : ControllerBase
         return BadRequest("Департамент не найден");
     }
     
+    [Authorize(Roles = "admin")]
     [HttpPost("department")]
     public IActionResult AddDepartment(string name, string? description)
     {
@@ -54,6 +58,7 @@ public class DepartmentsController : ControllerBase
         return Ok(departmnet.Entity?.Id ?? 0);
     }
     
+    [Authorize(Roles = "admin")]
     [HttpDelete("department")]
     public IActionResult DeleteDepartment(int id)
     {
