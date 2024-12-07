@@ -1,8 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using backvgtu.DbContexts;
+using backvgtu.Models.DTO;
 using backvgtu.Models.Users;
 using backvgtu.Utils;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -22,9 +24,9 @@ public class AuthController : ControllerBase
         _context = new ApplicationContext();
     }
     [HttpPost("/login")]
-    public IActionResult Login(string username, string password)
+    public IActionResult Login([FromBody] LoginRequestDto loginRequest)
     {
-        var identity = GetIdentity(username, password);
+        var identity = GetIdentity(loginRequest.Login, loginRequest.Password);
         if (identity == null)
         {
             return BadRequest(new { errorText = " Invalid username or password" });
@@ -52,17 +54,22 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("/register")]
-    public IActionResult Register(string username, string password)
+    public IActionResult Register([FromBody] RegisterRequestDto registerRequest)
     {
+        var user = _context.Users.FirstOrDefault(u => u.Login == registerRequest.Login);
+        if (user != null)
+        {
+            return BadRequest("User with login already exist");
+        }
         _context.Users.Add(new User()
         {
-            Login = username,
-            Password = AuthUtils.HashPassword(password),
+            Login = registerRequest.Login,
+            Password = AuthUtils.HashPassword(registerRequest.Password),
             Role = "user"
         });
 
-        var id = _context.SaveChanges();
-        return Ok(id);
+         _context.SaveChanges();
+        return Ok();
     }
     
     private ClaimsIdentity GetIdentity(string username, string password)

@@ -6,5 +6,5 @@ public class Education : EntityBase<int>
     
     public string Description { get; set; }
     
-    public Employee Employee { get; set; } 
+    //public Employee Employee { get; set; } 
 }
