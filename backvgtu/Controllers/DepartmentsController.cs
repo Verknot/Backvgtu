@@ -1,5 +1,6 @@
 using backvgtu.DbContexts;
 using backvgtu.Models.Departments;
+using backvgtu.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,13 +32,13 @@ public class DepartmentsController : ControllerBase
     
     [Authorize(Roles = "admin")]
     [HttpPut("department")]
-    public IActionResult UpdateDepartment(int id, string name, string? description)
+    public IActionResult UpdateDepartment([FromBody] UpdateDepartmentRequestDto updateDepartmentRequestDto)
     {
-        var departmnet = _context.Departments.FirstOrDefault(d => d.Id == id);
+        var departmnet = _context.Departments.FirstOrDefault(d => d.Id == updateDepartmentRequestDto.Id);
         if (departmnet != null)
         {
-            departmnet.Name = name;
-            departmnet.Description = description;
+            departmnet.Name = updateDepartmentRequestDto.Name;
+            departmnet.Description = updateDepartmentRequestDto.Description;
             _context.SaveChanges();
             return Ok();
         }
@@ -47,12 +48,12 @@ public class DepartmentsController : ControllerBase
     
     [Authorize(Roles = "admin")]
     [HttpPost("department")]
-    public IActionResult AddDepartment(string name, string? description)
+    public IActionResult AddDepartment([FromBody] AddDepartmentRequestDto addDepartmentRequestDto)
     {
         var departmnet = _context.Departments.Add(new Department()
         {
-            Name = name,
-            Description = description
+            Name = addDepartmentRequestDto.Name,
+            Description = addDepartmentRequestDto.Description
         });
         _context.SaveChanges();
         
