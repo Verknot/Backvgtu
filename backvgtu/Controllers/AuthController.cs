@@ -47,7 +47,8 @@ public class AuthController : ControllerBase
         var response = new
         {
             access_token = encodedJwt,
-            username = identity.Name
+            username = identity.Name,
+            role = identity.Claims.FirstOrDefault(c => c.Type.Contains("role"))?.Value
         };
         
         return Ok(JsonConvert.SerializeObject(response));
