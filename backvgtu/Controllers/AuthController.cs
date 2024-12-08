@@ -79,21 +79,16 @@ public class AuthController : ControllerBase
         {
             return null;
         }
-        
-        if (user != null)
+
+        var claims = new List<Claim>()
         {
-            
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Role)
-            };
+            new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
+            new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role)
+        };
 
-            var claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                ClaimsIdentity.DefaultRoleClaimType);
+        var claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+            ClaimsIdentity.DefaultRoleClaimType);
 
-            return claimsIdentity;
-        }
-        return null;
+        return claimsIdentity;
     }
 }

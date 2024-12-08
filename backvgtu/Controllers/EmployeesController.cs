@@ -1,6 +1,7 @@
 using backvgtu.DbContexts;
 using backvgtu.Models.DTO;
 using backvgtu.Models.Employees;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ namespace backvgtu.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class EmployeesController : ControllerBase
 {
 
@@ -19,6 +21,7 @@ public class EmployeesController : ControllerBase
         _context = new ApplicationContext();
     }
 
+    [Authorize(Roles = "admin, manager")]
     [HttpGet("employees")]
     public IEnumerable<Employee> GetEmployees()
     {
