@@ -1,7 +1,10 @@
+using backvgtu.DbContexts;
 using backvgtu.Models.DTO;
+using backvgtu.Models.Employees;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backvgtu.Controllers;
 
@@ -12,8 +15,16 @@ public class FilesController : ControllerBase
 {
     private const string FILES_DIRECTORY = "filesStorage";
 
-    [HttpGet("download")]
-    public IActionResult DownloadFile(string fileName)
+    private ApplicationContext _context;
+    
+    public FilesController()
+    {
+        _context = new ApplicationContext();
+    }
+    
+    [HttpPost("download")]
+    [Authorize(Roles = "admin, manager")]
+    public IActionResult DownloadFile([FromBody] DownloadFileRequestsDto downloadFileRequestsDto)
     {
         try
         {
@@ -23,8 +34,8 @@ public class FilesController : ControllerBase
                 return BadRequest("File not found");
             }
 
-            var filesBytes = System.IO.File.ReadAllBytes(Path.Combine(path, fileName));
-            return File(filesBytes, "application/octet-stream", fileName);
+            var filesBytes = System.IO.File.ReadAllBytes(Path.Combine(path, downloadFileRequestsDto.SystemName));
+            return File(filesBytes, "application/octet-stream", downloadFileRequestsDto.SystemName);
         }
         catch (Exception ex)
         {
@@ -38,6 +49,12 @@ public class FilesController : ControllerBase
     {
         try
         {
+            var employee = _context.Employees.Include(e => e.UserFiles).FirstOrDefault(e => e.Id == fileDto.EmployeeId);
+            if (employee == null)
+            {
+                return BadRequest("User not found");
+            }
+            
             var path = Path.Combine(Directory.GetCurrentDirectory(), FILES_DIRECTORY);
             if (!Directory.Exists(path))
             {
@@ -45,7 +62,21 @@ public class FilesController : ControllerBase
             }
 
             var fileBytes = Convert.FromBase64String(fileDto.FileString);
-            System.IO.File.WriteAllBytes(Path.Combine(path, fileDto.FileName), fileBytes);
+            var systemFileName = Guid.NewGuid().ToString();
+            System.IO.File.WriteAllBytes(Path.Combine(path, systemFileName), fileBytes);
+
+            if (employee.UserFiles == null)
+            {
+                employee.UserFiles = new List<UserFile>();
+            }
+            
+            employee.UserFiles.Add(new UserFile()
+            {
+                DisplayName = fileDto.FileName,
+                SystemName = systemFileName
+            });
+
+            _context.SaveChanges();
             return Ok();
         }
         catch (Exception ex)
@@ -56,7 +87,7 @@ public class FilesController : ControllerBase
     
     [HttpDelete("delete")]
     [Authorize(Roles = "admin, manager")]
-    public IActionResult DeleteFile(string fileName)
+    public IActionResult DeleteFile(string systemName)
     {
         try
         {
@@ -65,7 +96,7 @@ public class FilesController : ControllerBase
             {
                 return BadRequest("File not found");
             }
-            System.IO.File.Delete(Path.Combine(path, fileName));
+            System.IO.File.Delete(Path.Combine(path, systemName));
             return Ok();
         }
         catch (Exception ex)
