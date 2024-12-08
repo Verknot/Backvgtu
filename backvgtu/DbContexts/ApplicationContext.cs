@@ -17,6 +17,8 @@ public class ApplicationContext : DbContext
     
     public DbSet<WorkExperience> WorkExperience { get; set; }
 
+    public DbSet<UserFile> UserFiles { get; set; }
+    
     public ApplicationContext()
     {
         //Database.EnsureCreated();

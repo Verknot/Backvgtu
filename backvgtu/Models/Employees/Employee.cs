@@ -19,4 +19,6 @@ public class Employee : EntityBase<int>
     public List<Education> Educations { get; set; } 
     
     public List<WorkExperience> WorkExperience { get; set; } 
+    
+    public List<UserFile> UserFiles { get; set; }
 }

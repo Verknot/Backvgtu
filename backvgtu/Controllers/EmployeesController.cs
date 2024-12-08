@@ -27,7 +27,8 @@ public class EmployeesController : ControllerBase
     {
         return _context.Employees
             .Include(e => e.WorkExperience)
-            .Include(e => e.Educations).ToList();
+            .Include(e => e.Educations)
+            .Include(e => e.UserFiles).ToList();
     }
 
     [HttpPost("employee")]
