@@ -1,8 +1,6 @@
-using backvgtu.Models.Employees;
-
 namespace backvgtu.Models.DTO;
 
-public class EmployeeRequestDto
+public class EmployeeUpdateRequestDto : EntityBase<int>
 {
     public int DepartmentId { get; set; }
     

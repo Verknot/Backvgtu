@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace backvgtu.Controllers;
 
 [ApiController]
+[Route("[controller]")]
 public class AdministrationController : ControllerBase
 {
     private ApplicationContext _context;
@@ -20,7 +21,7 @@ public class AdministrationController : ControllerBase
     {
         try
         {
-            var users = _context.Users.ToList();
+            var users = _context.Users.ToList().OrderBy(u => u.Id);
             return Ok(users);
         }
         catch (Exception ex)
